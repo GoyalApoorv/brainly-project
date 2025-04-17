@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/mongoose": "^5.11.96",
+    "express": "^5.1.0",
+    "typescript": "^5.8.3"
+  },
+  "name": "brainly",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoyalApoorv/Brainly.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GoyalApoorv/Brainly/issues"
+  },
+  "homepage": "https://github.com/GoyalApoorv/Brainly#readme",
+  "description": ""
+}
