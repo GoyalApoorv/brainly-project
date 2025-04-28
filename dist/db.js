@@ -44,14 +44,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = exports.LinkModel = exports.ContentModel = exports.TagModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const config_1 = require("./config");
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect("mongodb+srv://admin:01QHLajDDZkB4vZ5@cluster0.tkqypdn.mongodb.net/Brainly"); // Use your actual connection string
+        yield mongoose_1.default.connect(config_1.BACKEND_URL);
         console.log('MongoDB connected');
     }
     catch (err) {
         console.error('MongoDB connection error:', err);
-        // Optionally exit the process if connection fails
         process.exit(1);
     }
 });
