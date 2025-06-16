@@ -64,7 +64,7 @@ app.use(cors());
     const content = ContentModel.create({
         link, type, tags: [],
         //@ts-ignore
-        userId: req.userId, 
+        userId
     }) 
     res.json({
         message: 'content added'
