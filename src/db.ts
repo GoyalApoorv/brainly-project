@@ -11,9 +11,11 @@ const connectDB = async () => {
     }
   };
 
+  connectDB();
+
 const userSchema = new Schema({
     username: {type: String, unique: true},
-    password: String,
+    password: { type: String, required: true, minLength: 6},
 })
 
 const tagSchema = new Schema({
@@ -25,7 +27,7 @@ const linkSchema = new Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true}
 })
 
-const contentTypes = ['image', 'video', 'article', 'audio'];
+const contentTypes = ['youtube', 'tweet', 'document'];
 
 const contentSchema = new Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},

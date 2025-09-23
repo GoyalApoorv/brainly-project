@@ -6,6 +6,7 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "typescript": "^5.8.3"
   },
   "name": "brainly",
@@ -29,6 +30,7 @@
   "homepage": "https://github.com/GoyalApoorv/Brainly#readme",
   "description": "",
   "devDependencies": {
-    "@types/cors": "^2.8.17"
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^2.0.0"
   }
 }

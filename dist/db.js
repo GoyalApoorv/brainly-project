@@ -55,9 +55,10 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         process.exit(1);
     }
 });
+connectDB();
 const userSchema = new mongoose_1.Schema({
     username: { type: String, unique: true },
-    password: String,
+    password: { type: String, required: true, minLength: 6 },
 });
 const tagSchema = new mongoose_1.Schema({
     title: { type: String, unique: true, required: true }
@@ -66,7 +67,7 @@ const linkSchema = new mongoose_1.Schema({
     hash: { type: String, required: true },
     userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true }
 });
-const contentTypes = ['image', 'video', 'article', 'audio'];
+const contentTypes = ['youtube', 'tweet', 'document'];
 const contentSchema = new mongoose_1.Schema({
     userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     type: { type: String, enum: contentTypes, required: true },
