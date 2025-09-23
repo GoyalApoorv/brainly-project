@@ -9,6 +9,7 @@ interface ButtonProps {
     size: "sm" | "md" | "lg" | "tag" | "contentSubmit";
     startIcon?: ReactElement;
     fullWidth?: boolean;
+    disabled?: boolean 
 }
 
 const variantStyles = {
@@ -28,7 +29,7 @@ const defaultStyles = "rounded-md";
 
 const Button: FC<ButtonProps> = (props) => {
     return (
-        <button className={`${variantStyles[props.variant]} ${defaultStyles} ${sizeStyles[props.size]} ${props.fullWidth ? "w-full flex justify-center items-center" : ""} `} onClick={props.onClick}>
+        <button className={`${variantStyles[props.variant]} ${defaultStyles} ${sizeStyles[props.size]} ${props.fullWidth ? "w-full flex justify-center items-center" : ""} ${props.disabled ? "opacity-50 cursor-not-allowed" : ""}`} onClick={props.onClick} disabled={props.disabled}>
             <div className="flex items-center justify-center">
                 <span>
                     {props.startIcon}

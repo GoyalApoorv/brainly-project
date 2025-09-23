@@ -3,14 +3,17 @@ import { DocIcon } from "../icons/DocIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { TwitterIcon } from "../icons/TwitterIcon";
 import { YouTubeIcon } from "../icons/YoutubeIcon";
+import { TwitterEmbed } from "./TwitterEmbed";
 
 interface CardProps {
     title: string,
     link: string,
-    type: "tweet" | "youtube" | "document";
+    type: "tweet" | "youtube" | "document",
+    contentId: string,
+    onDelete: () => void; 
 }
 
-export function Card({ title, link, type }: CardProps) {
+export function Card({ title, link, type, onDelete }: CardProps) {
     let LeftIconComponent: React.FC<any> = ShareIcon; // Default icon
 
     switch (type) {
@@ -25,7 +28,7 @@ export function Card({ title, link, type }: CardProps) {
             break;
     } // Conditionally rendering icon based on the document type.
 
-    return <div className="p-4 rounded-md bg-white shadow-md outline-gray-100 hover:cursor-pointer w-48 max-w-72 border">
+    return <div className="p-4 rounded-md bg-white shadow-md outline-gray-100 hover:cursor-pointer w-80 max-w-96 min-h-96 self-start flex-wrap border">
                 <div className="flex justify-between">
                     {/* Left section: Title with icon */}
                     <div className="flex items-center text-md">
@@ -40,9 +43,9 @@ export function Card({ title, link, type }: CardProps) {
                             <ShareIcon size={'sm'} />
                         </div>
                         <div className="pr-2 text-gray-500">
-                            <a href={link} target="_blank">
+                            <div className="pr-2 text-gray-500 cursor-pointer" onClick={onDelete}>
                               <DeleteIcon />
-                            </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -50,7 +53,7 @@ export function Card({ title, link, type }: CardProps) {
                     {/* Render YouTube embed if type is "youtube" */}
                     {type === "youtube" && (
                         <iframe
-                            className="w-full"
+                            className="w-full h-72 rounded-md"
                             src={link
                                 .replace("watch", "embed")
                                 .replace("?v=", "/")}
@@ -61,12 +64,7 @@ export function Card({ title, link, type }: CardProps) {
                         ></iframe>
                     )}
 
-                    {/* Render Twitter embed if type is "twitter" */}
-                    {type === "tweet" && (
-                        <blockquote className="twitter-tweet">
-                            <a href={link.replace('x.com', 'twitter.com')}></a>
-                        </blockquote>
-                    )}
+                    {type === "tweet" && <TwitterEmbed tweetUrl={link} />}
                 </div>
         </div>
 }
