@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = require("./db");
-const config_1 = require("./config");
 const middleware_1 = require("./middleware");
 const utils_1 = require("./utils");
 const cors_1 = __importDefault(require("cors"));
@@ -101,7 +100,7 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
     const existingUser = yield db_1.UserModel.findOne({ username,
         password });
     if (existingUser) {
-        const token = jsonwebtoken_1.default.sign({ id: existingUser._id }, config_1.JWT_PASSSWORD);
+        const token = jsonwebtoken_1.default.sign({ id: existingUser._id }, process.env.JWT_PASSWORD);
         res.json({
             token
         });

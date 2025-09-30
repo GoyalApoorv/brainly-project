@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken'
-import { JWT_PASSSWORD } from "./config";
 
 declare global {
   namespace Express {
@@ -35,8 +34,8 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction):
             return;
         }
         
-        console.log("About to verify token with JWT_PASSWORD:", JWT_PASSSWORD ? "EXISTS" : "MISSING");
-        const decoded = jwt.verify(token, JWT_PASSSWORD) as any;
+        console.log("About to verify token with JWT_PASSWORD:", process.env.JWT_PASSWORD ? "EXISTS" : "MISSING");
+        const decoded = jwt.verify(token, process.env.JWT_PASSWORD) as any;
         console.log("Token decoded successfully:", decoded);
         
         req.userId = decoded.id;

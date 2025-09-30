@@ -44,10 +44,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = exports.LinkModel = exports.ContentModel = exports.TagModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const config_1 = require("./config");
+require("dotenv/config");
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield mongoose_1.default.connect(config_1.BACKEND_URL);
+        yield mongoose_1.default.connect(process.env.DATABASE_URL);
         console.log('MongoDB connected');
     }
     catch (err) {

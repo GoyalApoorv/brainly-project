@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const config_1 = require("./config");
 const userMiddleware = (req, res, next) => {
     console.log("=== MIDDLEWARE STARTED ===");
     console.log("Headers:", req.headers);
@@ -24,8 +23,8 @@ const userMiddleware = (req, res, next) => {
             res.status(401).json({ message: 'Token missing' });
             return;
         }
-        console.log("About to verify token with JWT_PASSWORD:", config_1.JWT_PASSSWORD ? "EXISTS" : "MISSING");
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.JWT_PASSSWORD);
+        console.log("About to verify token with JWT_PASSWORD:", process.env.JWT_PASSWORD ? "EXISTS" : "MISSING");
+        const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_PASSWORD);
         console.log("Token decoded successfully:", decoded);
         req.userId = decoded.id;
         console.log("Calling next() - moving to route handler");

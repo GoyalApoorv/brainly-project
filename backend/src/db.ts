@@ -1,9 +1,9 @@
 import mongoose, { Model, model, mongo, MongooseError, Schema } from "mongoose";
-import { BACKEND_URL } from "./config";
+import 'dotenv/config'
 
 const connectDB = async () => {
     try {
-      await mongoose.connect(BACKEND_URL); 
+      await mongoose.connect(process.env.DATABASE_URL); 
       console.log('MongoDB connected');
     } catch (err) {
       console.error('MongoDB connection error:', err);

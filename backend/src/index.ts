@@ -1,7 +1,6 @@
 import express from "express"
 import jwt from "jsonwebtoken";
 import { UserModel, ContentModel, LinkModel, TagModel } from './db'
-import { JWT_PASSSWORD } from "./config"
 import { userMiddleware } from "./middleware";
 import { random } from "./utils";
 import cors from 'cors'
@@ -101,7 +100,7 @@ app.use('/uploads', express.static('uploads'));
     const existingUser = await UserModel.findOne({username,
     password})
     if(existingUser) {
-        const token = jwt.sign({id: existingUser._id},JWT_PASSSWORD) 
+        const token = jwt.sign({id: existingUser._id},process.env.JWT_PASSWORD) 
         res.json({
             token
         })
