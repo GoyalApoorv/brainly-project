@@ -80,7 +80,7 @@ export function useContent() {
     }
   };
 
-    const handleShare = (link: string, type: string, title: string) => {
+    const handleShare = (link: string, title: string) => {
       if (navigator.share) {
         navigator.share({
           title: `${title}`,
