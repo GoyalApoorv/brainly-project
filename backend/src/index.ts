@@ -12,7 +12,9 @@ const fs = require('fs');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "https://brainly-project.vercel.app"
+}));
 
 // Creates uploads directory if it doesn't exist
 const uploadDir = 'uploads/documents/';
@@ -20,7 +22,6 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Configure multer 
 const storage = multer.diskStorage({
     destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         cb(null, uploadDir);
