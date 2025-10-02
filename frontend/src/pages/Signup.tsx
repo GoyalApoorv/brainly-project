@@ -13,11 +13,24 @@ export function Signup() {
     async function signup() {
         const username = usernameRef.current?.value
         const password = passwordRef.current?.value
-        await axios.post(`${BACKEND_URL}/api/v1/signup`, {
-            username,
-            password
-        })
-        navigate("/signin")
+        if (!username || !password) {
+            alert("Please enter both a username and password.");
+            return;
+        }
+        
+        try {
+            await axios.post(`${BACKEND_URL}/api/v1/signup`, {
+                username,
+                password
+            });
+
+            alert("Signup successful! Please sign in.");
+            navigate("/signin");
+
+        } catch (error) {
+            console.error("Signup failed:", error);
+            alert("Signup failed. That username might already be taken.");
+        }
     }
 
  return <div className="h-screen w-screen bg-gray-200 flex justify-center items-center">
