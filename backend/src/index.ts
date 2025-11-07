@@ -11,10 +11,10 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-app.use(express.json());
 app.use(cors({
     origin: "https://brainly-project.vercel.app"
 }));
+app.use(express.json());
 
 // Creates uploads directory if it doesn't exist
 const uploadDir = 'uploads/documents/';
