@@ -64,7 +64,7 @@ export function useContent() {
     
     formData.append('title', title);
     formData.append('type', type);
-    formData.append('file', file); // Append the file itself
+    formData.append('file', file);
 
     try {
         // 3. Send the FormData object

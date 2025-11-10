@@ -18,18 +18,24 @@ const db_1 = require("./db");
 const middleware_1 = require("./middleware");
 const utils_1 = require("./utils");
 const cors_1 = __importDefault(require("cors"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const saltRounds = 10;
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
+    origin: [
+        "https://brainly-project.vercel.app",
+        "http://localhost:5173"
+    ]
+}));
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
 // Creates uploads directory if it doesn't exist
 const uploadDir = 'uploads/documents/';
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-// Configure multer 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
@@ -58,7 +64,7 @@ app.post("/api/v1/content/document", middleware_1.userMiddleware, upload.single(
         const { title } = req.body;
         const userId = req.userId;
         if (!req.file) {
-            res.status(400).json({ message: "No file uploaded" }); // Remove return
+            res.status(400).json({ message: "No file uploaded" });
             return;
         }
         const content = yield db_1.ContentModel.create({
@@ -67,22 +73,32 @@ app.post("/api/v1/content/document", middleware_1.userMiddleware, upload.single(
             type: 'document',
             userId
         });
-        res.json({ message: "Document uploaded successfully", content }); // Remove return
+        res.json({ message: "Document uploaded successfully", content });
     }
     catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ message: "Error uploading document" }); // Remove return
+        res.status(500).json({ message: "Error uploading document" });
     }
 }));
 // Serve uploaded files
 app.use('/uploads', express_1.default.static('uploads'));
-app.post("/api/v1/signup", (req, res) => {
+app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.body.username;
     const password = req.body.password;
     try {
-        db_1.UserModel.create({
+        // Check if user already exists
+        const existingUser = yield db_1.UserModel.findOne({ username });
+        if (existingUser) {
+            res.status(403).json({
+                message: "User already exists"
+            });
+            return;
+        }
+        // Hash the password
+        const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
+        yield db_1.UserModel.create({
             username: username,
-            password: password
+            password: hashedPassword
         });
         res.json({
             message: "User signed up"
@@ -90,24 +106,30 @@ app.post("/api/v1/signup", (req, res) => {
     }
     catch (error) {
         res.status(403).json({
-            message: "User already exists"
+            message: "Error creating user"
         });
     }
-});
+}));
 app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.body.username;
     const password = req.body.password;
-    const existingUser = yield db_1.UserModel.findOne({ username,
-        password });
-    if (existingUser) {
-        const token = jsonwebtoken_1.default.sign({ id: existingUser._id }, process.env.JWT_PASSWORD);
-        res.json({
-            token
-        });
+    try {
+        const user = yield db_1.UserModel.findOne({ username });
+        if (user && (yield bcrypt_1.default.compare(password, user.password))) {
+            const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_PASSWORD);
+            res.json({
+                token
+            });
+        }
+        else {
+            res.status(403).json({
+                message: "Incorrect credentials"
+            });
+        }
     }
-    else {
-        res.status(403).json({
-            message: "Incorrect credentials"
+    catch (error) {
+        res.status(500).json({
+            message: "Error during signin"
         });
     }
 }));
@@ -167,7 +189,7 @@ app.delete("/api/v1/content/:id", middleware_1.userMiddleware, (req, res) => __a
         res.status(500).json({ message: "Error deleting content" });
     }
 }));
-app.post("api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const share = req.body.share;
     if (share) {
         const existingLink = yield db_1.LinkModel.findOne({
@@ -200,7 +222,7 @@ app.post("api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awai
         });
     }
 }));
-app.post("api/v1/brain/:shareLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/api/v1/brain/:shareLink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const hash = req.params.shareLink;
     const link = yield db_1.LinkModel.findOne({
         hash

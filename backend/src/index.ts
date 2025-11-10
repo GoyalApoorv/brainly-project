@@ -1,18 +1,23 @@
-import express from "express"
+import express, { Request, Response } from "express"
 import jwt from "jsonwebtoken";
 import { UserModel, ContentModel, LinkModel, TagModel } from './db'
 import { userMiddleware } from "./middleware";
 import { random } from "./utils";
 import cors from 'cors'
-import { Request } from 'express';
 import { FileFilterCallback } from 'multer';
+import bcrypt from 'bcrypt'; 
+
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const saltRounds = 10; 
 
 const app = express();
 app.use(cors({
-    origin: "https://brainly-project.vercel.app"
+    origin: [
+        "https://brainly-project.vercel.app",
+        "http://localhost:5173"
+    ]
 }));
 app.use(express.json());
 
@@ -54,7 +59,7 @@ app.post("/api/v1/content/document", userMiddleware, upload.single('document'), 
         const userId = req.userId;
         
         if (!req.file) {
-            res.status(400).json({ message: "No file uploaded" }); // Remove return
+            res.status(400).json({ message: "No file uploaded" }); 
             return;
         }
         
@@ -65,52 +70,70 @@ app.post("/api/v1/content/document", userMiddleware, upload.single('document'), 
             userId
         });
         
-        res.json({ message: "Document uploaded successfully", content }); // Remove return
+        res.json({ message: "Document uploaded successfully", content }); 
     } catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ message: "Error uploading document" }); // Remove return
+        res.status(500).json({ message: "Error uploading document" }); 
     }
 });
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
-
- app.post("/api/v1/signup", (req, res) => {
-    const username = req.body.username
-    const password = req.body.password
+app.post("/api/v1/signup", async (req: Request, res: Response): Promise<void> => {
+    const username = req.body.username;
+    const password = req.body.password;
 
     try {
-        UserModel.create({
+        // Check if user already exists
+        const existingUser = await UserModel.findOne({ username });
+        if (existingUser) {
+            res.status(403).json({
+                message: "User already exists"
+            });
+            return;
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        await UserModel.create({
             username: username,
-            password: password
-        })
+            password: hashedPassword
+        });
 
         res.json({
             message: "User signed up"
-        })
+        });
     } catch (error) {
         res.status(403).json({
-            message: "User already exists"
-        })
+            message: "Error creating user"
+        });
     }
- })
+});
 
- app.post("/api/v1/signin", async (req, res) => {
-    const username = req.body.username
-    const password = req.body.password
-    const existingUser = await UserModel.findOne({username,
-    password})
-    if(existingUser) {
-        const token = jwt.sign({id: existingUser._id},process.env.JWT_PASSWORD) 
-        res.json({
-            token
-        })
-    } else {
-        res.status(403).json({
-            message: "Incorrect credentials"
-        })
+app.post("/api/v1/signin", async (req: Request, res: Response) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    
+    try {
+        const user = await UserModel.findOne({ username });
+
+        if (user && await bcrypt.compare(password, user.password)) {
+            const token = jwt.sign({ id: user._id }, process.env.JWT_PASSWORD);
+            res.json({
+                token
+            });
+        } else {
+            res.status(403).json({
+                message: "Incorrect credentials"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Error during signin"
+        });
     }
- })
+});
 
  app.get("/api/v1/content", userMiddleware, async (req, res) => {
     try {
@@ -173,7 +196,7 @@ app.delete("/api/v1/content/:id", userMiddleware, async (req, res) => {
         res.status(500).json({ message: "Error deleting content" });
     }
 });
- app.post("api/v1/brain/share", userMiddleware, async (req, res) => {
+ app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
     const share = req.body.share;
 
     if(share) {
@@ -208,7 +231,7 @@ app.delete("/api/v1/content/:id", userMiddleware, async (req, res) => {
     }
  })
 
- app.post("api/v1/brain/:shareLink", async (req, res) => {
+ app.post("/api/v1/brain/:shareLink", async (req, res) => {
     const hash = req.params.shareLink;
 
     const link = await LinkModel.findOne({

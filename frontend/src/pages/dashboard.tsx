@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../App.css';
 import Button from '../components/Button';
 import { Card } from '../components/Card';
@@ -11,18 +11,41 @@ import axios from 'axios';
 import { BACKEND_URL } from '../config';
 import { Header } from '../components/Header'; 
 import { ContentType } from '../components/CreateContentModal';
+import { useNavigate } from 'react-router-dom';
 
 export function Dashboard() {
     const [modalOpen, setModalOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isAdding, setIsAdding] = useState(false);
     const [activeFilter, setActiveFilter] = useState<string>('all');
+    const [user, setUser] = useState(null);
     
-    // Get contents, and the functions to add and delete content
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${BACKEND_URL}/api/v1/user/me`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem("token")}` }
+                });
+                setUser(response.data.user);
+            } catch (error) {
+                console.error("Failed to fetch user", error);
+                navigate("/signin"); // Redirect if token is invalid
+            }
+        };
+        fetchUser();
+    }, [navigate]);
+
     const { contents, addContent, addFileContent, handleDelete } = useContent();
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleSignOut = () => {
+        localStorage.removeItem("token");
+        navigate("/signin");
     };
 
     // Filtering logic based on the activeFilter state
@@ -63,7 +86,7 @@ export function Dashboard() {
                 transition-all duration-300 ease-in-out
                 ${isSidebarOpen ? 'ml-72' : 'ml-0'}
             `}>
-                <Header onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
+                <Header onToggleSidebar={toggleSidebar} isOpen={isSidebarOpen} user={user} onSignOut={handleSignOut} />
 
                 {/* Main content area */}
                 <main className="flex-1 p-4">
@@ -71,7 +94,7 @@ export function Dashboard() {
                         <Button  
                             onClick={() => setModalOpen(true)} 
                             variant={"primary"} 
-                            startIcon={<PlusIcon size='sm' />} 
+                            startIcon={<PlusIcon size='md' />} 
                             size={"md"} 
                             title='Add content' 
                             fullWidth={false}
@@ -79,7 +102,7 @@ export function Dashboard() {
                         <Button 
                             variant={"secondary"} 
                             onClick={async () => { await axios.post(`${BACKEND_URL}/api/v1/brain/share`) }} 
-                            startIcon={<ShareIcon size='sm' />} 
+                            startIcon={<ShareIcon size='md' />} 
                             size={'md'} 
                             title={'Share brain'}
                             fullWidth={false} 
