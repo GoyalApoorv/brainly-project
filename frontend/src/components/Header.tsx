@@ -6,8 +6,8 @@ import { useState } from 'react';
 interface User {
     id: string;
     username: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
 }
 
 // Define the props interface
@@ -27,7 +27,7 @@ const HamburgerIcon = () => (
 export function Header({ onToggleSidebar, isOpen, user, onSignOut }: HeaderProps) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const userInitial = user?.firstName?.[0]?.toUpperCase() || 'U';
+    const userInitial = user?.username?.[0]?.toUpperCase() || 'U';
 
     return (
         <header className="bg-white shadow-sm p-4 sticky top-0 z-10 flex items-center justify-between">

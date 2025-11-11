@@ -59,6 +59,26 @@ const upload = multer({
         }
     }
 });
+app.get("/api/v1/user/me", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db_1.UserModel.findById(req.userId).select("-password"); // .select("-password") prevents sending the hash
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+        res.json({
+            user: {
+                id: user._id,
+                username: user.username,
+            }
+        });
+    }
+    catch (error) {
+        console.error("Error in /me route:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}));
+
 app.post("/api/v1/content/document", middleware_1.userMiddleware, upload.single('document'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { title } = req.body;
@@ -193,7 +213,6 @@ app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awa
     const share = req.body.share;
     if (share) {
         const existingLink = yield db_1.LinkModel.findOne({
-            //@ts-ignore
             userId: req.userId
         });
         if (existingLink) {
@@ -205,7 +224,6 @@ app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awa
         const hash = (0, utils_1.random)(10);
         const newLink = yield db_1.LinkModel.create({
             hash,
-            //@ts-ignore
             userId: req.userId,
         });
         res.json({
@@ -214,7 +232,6 @@ app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awa
     }
     else {
         yield db_1.LinkModel.deleteOne({
-            //@ts-ignore
             userId: req.userId
         });
         res.json({
