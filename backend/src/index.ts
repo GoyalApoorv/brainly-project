@@ -53,6 +53,27 @@ const upload = multer({
     }
 });
 
+app.get("/api/v1/user/me", userMiddleware, async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = await UserModel.findById(req.userId).select("-password"); // .select("-password") prevents sending the hash
+
+        if (!user) {
+             res.status(404).json({ message: "User not found" });
+            return;
+        }
+
+        res.json({
+            user: {
+                id: user._id,
+                username: user.username,
+            }
+        });
+    } catch (error) {
+        console.error("Error in /me route:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 app.post("/api/v1/content/document", userMiddleware, upload.single('document'), async (req, res) => {
     try {
         const { title } = req.body;
@@ -196,12 +217,12 @@ app.delete("/api/v1/content/:id", userMiddleware, async (req, res) => {
         res.status(500).json({ message: "Error deleting content" });
     }
 });
+
  app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
     const share = req.body.share;
 
     if(share) {
         const existingLink = await LinkModel.findOne({
-            //@ts-ignore
             userId: req.userId
         });
         if(existingLink) {
@@ -214,7 +235,6 @@ app.delete("/api/v1/content/:id", userMiddleware, async (req, res) => {
         const hash = random(10);
         const newLink = await LinkModel.create({
             hash,
-            //@ts-ignore
             userId: req.userId,
         });
         res.json({
@@ -222,7 +242,6 @@ app.delete("/api/v1/content/:id", userMiddleware, async (req, res) => {
         })
     } else {
         await LinkModel.deleteOne({
-            //@ts-ignore
             userId: req.userId
         })
         res.json({
